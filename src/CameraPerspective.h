@@ -47,6 +47,7 @@ public:
 		float sscy = 2 * (y + dy) / getResolution().height - 1;
 		
 		ray.org = m_pos;
+		ray.hit = nullptr;
 		ray.dir = normalize(m_aspect * sscx * m_xAxis + sscy * m_yAxis + m_focus * m_zAxis);
 		ray.t = std::numeric_limits<float>::infinity();
 	}

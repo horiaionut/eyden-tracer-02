@@ -29,7 +29,35 @@ public:
 	virtual Vec3f Shade(const Ray& ray) const override
 	{
 		// --- PUT YOUR CODE HERE ---
-		return RGB(0, 0, 0);
+
+		int n = 1; // change this to 1000 for the last task. Thank you 
+
+		Vec3f cd 	= CShaderFlat::Shade(ray);
+		Vec3f diff  = 0;
+		Vec3f spec  = 0;
+		Vec3f N 	= ray.hit->GetNormal(ray);
+		
+		Ray light_ray;
+		light_ray.org 	= ray.org + ray.t * ray.dir;
+		
+		for(auto light : m_scene.m_vpLights)
+			for(int i = 0; i < n; i ++){
+
+				auto Li = light->Illuminate(light_ray);
+				if(!Li || m_scene.Occluded(light_ray))
+					continue;
+
+				Vec3f I 	= light_ray.dir;
+				float IdotN = I.dot(N);
+				Vec3f R  	= 2 * IdotN * N - I;
+
+				diff += *Li * std::max(0.f, IdotN);
+				spec += *Li * std::pow(std::max(0.f, R.dot(-ray.dir)), m_ke);
+			}
+
+		return  m_ka * cd * 1.1 + 
+				m_kd * cd.mul(diff / n) + 
+				m_ks * RGB(1, 1, 1).mul(spec / n);
 	}
 
 	
